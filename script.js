@@ -1,51 +1,94 @@
-let humanScore = 0;
-let computerScore = 0;
+const humanScore = document.getElementById('humanScore');
+const computerScore = document.getElementById('computerScore');;
+const result = document.getElementById('result');
+const userRow = document.getElementById('user_row');
+const computerRow = document.getElementById('computer_row');
+const buttonPanel = document.getElementById('button_panel');
 
 function getComputerChoice (){
     const choices = ["rock", "paper", "scissors"];
     return choices[Math.floor(Math.random() * 3)];
 }
 
-function getHumanChoice (){
-    const humanChoice = prompt("Enter your choice");
-    return humanChoice.toLowerCase();
+function buttonOption(event) {
+    if (event.target.matches('button')) {
+        playRound(event.target.id);
+    };
 }
 
-function playerWins(humanChoice, computerChoice) {
-    return `You win! ${humanChoice} beats ${computerChoice}`;
+buttonPanel.addEventListener('click', buttonOption);
+
+
+function disableButtons() {
+    buttonPanel.removeEventListener('click', buttonOption);
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach((button) => {
+        button.style.color = 'white';
+        button.style.border = 'gray';
+    } )
+
 }
 
-function calculateWinner(computerChoice, humanChoice) {
-    if (computerChoice === "rock" && humanChoice === "scissors" ||
-    computerChoice === "scissors" && humanChoice === "paper" ||
-    computerChoice === "paper" && humanChoice === "rock") {
-        console.log(`You lose! ${computerChoice} beats ${humanChoice}`);
-        computerScore += 1;
-    } else {
-        console.log(`You win! ${humanChoice} beats ${computerChoice}`);
-        humanScore += 1;        
+function capitalize(str) {
+    if (!str) {
+        throw new Error('empty string');
+    }
+    return str[0].toUpperCase() + str.slice(1); 
+}
+
+function updateWinner(playerWins, humanChoice, computerChoice) {
+    result.innerText = `${playerWins? 
+                        `${capitalize(humanChoice)} beats ${capitalize(computerChoice)}` : 
+                        `${capitalize(computerChoice)} beats ${capitalize(humanChoice)}`} 
+                        `;
+    result.style.opacity = '100';
+}
+
+function increaseScore(score) {
+    score.textContent = (Number(score.textContent) + 1).toString();
+}
+
+
+
+function calculateGameOver(){
+    if (humanScore.textContent === '5') {
+        result.innerText = 'You win!';
+        userRow.style.backgroundColor = 'green';
+        computerRow.style.backgroundColor = 'red';
+        disableButtons();
+    }
+    if (computerScore.textContent === '5') {
+        result.innerText = 'You lose!';
+        userRow.style.backgroundColor = 'red';
+        computerRow.style.backgroundColor = 'green';
+        disableButtons();
     }
 
 }
 
-function playRound(){
+function playRound(humanChoice){
     const computerChoice= getComputerChoice();
-    const humanChoice = getHumanChoice();
     if (computerChoice === humanChoice) {
-        console.log( `Draw. Both players chose ${computerChoice}`);
-        return;
+        result.innerText = `Both players chose ${capitalize(computerChoice)}`;
+        result.style.opacity = '100';
     } else {
-        calculateWinner(computerChoice, humanChoice);
+        const playerWins = (humanChoice === "rock" && computerChoice === "scissors" ||
+            humanChoice === "scissors" && computerChoice === "paper" ||
+            humanChoice === "paper" && computerChoice === "rock"
+            );
+        updateWinner(playerWins, humanChoice, computerChoice);
+        increaseScore(playerWins ? humanScore : computerScore);
+        calculateGameOver();
     }
 }
 
-function playGame() {
-    for (let i = 0; i < 5; i++) {
-        playRound();
-    }
-    console.log(`Your final score is: ${humanScore}`);
-    console.log(`The CPU's score is: ${computerScore}`);
-}
+// function playGame() {
+//     for (let i = 0; i < 5; i++) {
+//         playRound();
+//     }
+//     console.log(`Your final score is: ${humanScore}`);
+//     console.log(`The CPU's score is: ${computerScore}`);
+// }
 
-playGame();
+// playGame();
 
